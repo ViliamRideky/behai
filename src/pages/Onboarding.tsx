@@ -17,14 +17,22 @@ import {
   injuryHistoryOptions,
 } from "@/utils/options";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import type {
+  Goal,
+  Experience,
+  InjuryHistory,
+  WeeklyFrequency,
+} from "@/utils/types";
 
 const INJURY_OTHER = "other";
 
 interface OnboardingFormData {
-  goal: string;
-  experience: string;
-  frequency: string;
-  injuries?: string;
+  goal: Goal | "";
+  experience: Experience | "";
+  frequency: WeeklyFrequency | "";
+  injuries?: InjuryHistory | "";
   injuryDetails?: string;
 }
 
@@ -37,8 +45,10 @@ const initialFormData: OnboardingFormData = {
 };
 
 export const Onboarding = () => {
-  const { user } = useAuth();
+  const { user, saveProfile } = useAuth();
   const [formData, setFormData] = useState<OnboardingFormData>(initialFormData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const updateField = <K extends keyof OnboardingFormData>(
     field: K, // nazov pola, ktore menime
@@ -48,6 +58,38 @@ export const Onboarding = () => {
       ...prev, // rozbal vsetky existujuce polia (aby sme neprisli o ostatne data)
       [field]: value, // prepis len to jedno pole, ktore aktualne menime
     }));
+  };
+
+  const handleQuestionnaire = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const { goal, experience, frequency, injuries, injuryDetails } = formData;
+
+    if (!goal || !experience || !frequency) {
+      setSubmitError("Please fill in all required fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      await saveProfile({
+        goal,
+        experience,
+        frequency,
+        injuries: injuries || undefined,
+        injuryDetails: injuryDetails || undefined,
+      });
+
+      // navigate("/plan");
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Something went wrong",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!user) {
@@ -64,12 +106,12 @@ export const Onboarding = () => {
               Help us create the perfect plan for you.
             </p>
 
-            <form className="space-y-6">
+            <form onSubmit={handleQuestionnaire} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="goal">What's your primary goal?</Label>
                 <Select
                   value={formData.goal}
-                  onValueChange={(value) => updateField("goal", value)}
+                  onValueChange={(value) => updateField("goal", value as Goal)}
                   required
                 >
                   <SelectTrigger id="goal" className="w-full">
@@ -89,7 +131,9 @@ export const Onboarding = () => {
                 <Label htmlFor="experience">Running experience</Label>
                 <Select
                   value={formData.experience}
-                  onValueChange={(value) => updateField("experience", value)}
+                  onValueChange={(value) =>
+                    updateField("experience", value as Experience)
+                  }
                   required
                 >
                   <SelectTrigger id="experience" className="w-full">
@@ -109,7 +153,9 @@ export const Onboarding = () => {
                 <Label htmlFor="frequency">Weekly running frequency</Label>
                 <Select
                   value={formData.frequency}
-                  onValueChange={(value) => updateField("frequency", value)}
+                  onValueChange={(value) =>
+                    updateField("frequency", value as WeeklyFrequency)
+                  }
                   required
                 >
                   <SelectTrigger id="frequency" className="w-full">
@@ -131,7 +177,9 @@ export const Onboarding = () => {
                 </Label>
                 <Select
                   value={formData.injuries}
-                  onValueChange={(value) => updateField("injuries", value)}
+                  onValueChange={(value) =>
+                    updateField("injuries", value as InjuryHistory)
+                  }
                 >
                   <SelectTrigger id="injuries" className="w-full">
                     <SelectValue placeholder="Select if applicable" />
@@ -161,6 +209,20 @@ export const Onboarding = () => {
                   />
                 </div>
               )}
+              {/* TODO vymazat, zatial na debugging */}
+              {submitError && (
+                <p className="text-sm text-destructive">{submitError}</p>
+              )}
+              <div className="flex gap-3 pt-2">
+                <Button
+                  type="submit"
+                  className="flex-1 gap-2"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Saving..." : "Generate my plan"}
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
             </form>
           </Card>
         </div>
