@@ -24,3 +24,17 @@ model UserProfile {
 
   @@map("user_profiles")
 }
+
+model TrainingPlan {
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   String @db.Uuid @map("user_id")
+  planJson Json   @map("plan_json")
+  planText String @map("plan_text")
+  version  Int    @default(1)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6) @map("created_at")
+  updatedAt DateTime @updatedAt @db.Timestamptz(6) @map("updated_at")
+
+  @@index([userId], map: "idx_training_plans_user_id")
+  @@map("training_plans")
+}
