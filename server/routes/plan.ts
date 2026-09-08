@@ -1,9 +1,29 @@
 import { Router, type Request, type Response } from "express";
+import OpenAI from "openai";
 import { prisma } from "../lib/prisma";
 import { generateTrainingPlan } from "../lib/ai";
-import { UserProfile } from "../types";
 
 export const planRouter = Router();
+
+planRouter.get("/:userId", async (req: Request, res: Response) => {
+  try {
+    const userId = String(req.params.userId);
+
+    const plan = await prisma.trainingPlan.findFirst({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!plan) {
+      return res.status(404).json({ error: "No plan found for this user" });
+    }
+
+    return res.status(200).json({ plan });
+  } catch (error) {
+    console.error("Error fetching plan:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 planRouter.post("/generate", async (req: Request, res: Response) => {
   try {
@@ -52,6 +72,14 @@ planRouter.post("/generate", async (req: Request, res: Response) => {
       .json({ message: "Plan generated successfully", plan: newPlan });
   } catch (error) {
     console.error("Error generating plan:", error);
+
+    if (error instanceof OpenAI.APIError) {
+      return res.status(503).json({
+        error:
+          "The AI model is temporarily unavailable. Please try again in a moment.",
+      });
+    }
+
     res.status(500).json({ error: "Internal server error" });
   }
 });

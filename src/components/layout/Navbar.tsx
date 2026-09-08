@@ -15,7 +15,7 @@ export const Navbar = () => {
           className="flex items-center gap-2 text-[var(--color-foreground)]"
         >
           <SportShoe className="w-6 h-6 text-[var(--color-accent)]" />
-          <span className="font-semibold text-lg">BehAI</span>
+          <span className="font-semibold text-lg">Behai</span>
         </Link>
 
         <nav>

@@ -24,3 +24,23 @@ export interface UserProfile {
   injuries?: InjuryHistory;
   injuryDetails?: string;
 }
+
+export interface DaySchedule {
+  day: string;
+  workout: string;
+}
+
+export interface TrainingPlanContent {
+  overview: string;
+  weeklySchedule: DaySchedule[];
+  progression: string;
+}
+
+export interface TrainingPlan {
+  id: string;
+  userId: string;
+  version: number;
+  planJson: TrainingPlanContent;
+  planText: string;
+  createdAt: string;
+}

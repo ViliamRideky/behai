@@ -27,16 +27,16 @@ export async function generateTrainingPlan(
   const prompt = buildPrompt(profile);
 
   const completion = await openai.chat.completions.create({
-    model: "openai/gpt-oss-20b:free",
+    model: "nvidia/nemotron-3-ultra-550b-a55b:free",
     models: [
-      "inclusionai/ling-3.0-flash:free",
-      "nvidia/nemotron-nano-9b-v2:free",
+      "poolside/laguna-s-2.1:free",
+      "inclusionai/ling-3.0-flash-fin:free",
     ],
     messages: [
       {
         role: "system",
         content:
-          "You are an expert running coach who creates safe, progressive, and personalized running training plans. You always respond with valid JSON only, no markdown formatting, no code fences, no explanations outside the JSON.",
+          "You are an expert running coach who creates safe, progressive, and personalized running training plans for a European audience. You always use the metric system (kilometers, never miles). You always respond with valid JSON only, no markdown formatting, no code fences, no explanations outside the JSON.",
       },
       {
         role: "user",
@@ -96,6 +96,7 @@ Guidelines for the plan:
 - Include a mix of easy runs, and where appropriate for the goal and experience level, workouts such as tempo runs, intervals, or long runs.
 - Include at least one rest or cross-training day per week.
 - Keep workout descriptions concise but specific (e.g. include approximate distance or duration, and effort level).
+- Use the metric system only. Always express distances in kilometers (km) and paces in minutes per kilometer (min/km). Never use miles or any imperial units.
 
 Respond with a single JSON object matching exactly this structure, and nothing else:
 
@@ -104,7 +105,7 @@ Respond with a single JSON object matching exactly this structure, and nothing e
   "weeklySchedule": [
     {
       "day": "string - e.g. Monday",
-      "workout": "string - description of the workout for that day, or 'Rest' or 'Cross-training'"
+      "workout": "string - description of the workout for that day, or 'Rest' or 'Cross-training'. Use kilometers (km) for any distance, never miles."
     }
   ],
   "progression": "string - explanation of how the plan progresses week to week and what to adjust if it feels too easy or too hard"

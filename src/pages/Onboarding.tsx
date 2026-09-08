@@ -25,6 +25,7 @@ import type {
   InjuryHistory,
   WeeklyFrequency,
 } from "@/utils/types";
+import { useNavigate } from "react-router-dom";
 
 const INJURY_OTHER = "other";
 
@@ -45,10 +46,11 @@ const initialFormData: OnboardingFormData = {
 };
 
 export const Onboarding = () => {
-  const { user, saveProfile } = useAuth();
+  const { user, saveProfile, generatePlan } = useAuth();
   const [formData, setFormData] = useState<OnboardingFormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const updateField = <K extends keyof OnboardingFormData>(
     field: K, // nazov pola, ktore menime
@@ -81,8 +83,8 @@ export const Onboarding = () => {
         injuries: injuries || undefined,
         injuryDetails: injuryDetails || undefined,
       });
-
-      // navigate("/plan");
+      await generatePlan();
+      navigate("/profile");
     } catch (error) {
       setSubmitError(
         error instanceof Error ? error.message : "Something went wrong",

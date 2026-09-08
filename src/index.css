@@ -31,7 +31,7 @@
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
 
   /* Override Better Auth skeleton colors */

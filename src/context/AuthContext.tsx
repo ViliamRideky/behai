@@ -1,12 +1,14 @@
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/auth";
-import type { User, UserProfile } from "@/utils/types";
+import type { TrainingPlan, User, UserProfile } from "@/utils/types";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   saveProfile: (data: Omit<UserProfile, "userId">) => Promise<void>;
+  generatePlan: () => Promise<void>;
+  getPlan: () => Promise<TrainingPlan | null>;
 }
 
 // interface AuthProviderProps {
@@ -46,8 +48,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await api.saveProfile(neonUser.id, profileData);
   };
 
+  const generatePlan = async () => {
+    if (!neonUser) {
+      throw new Error("Cannot save profile: user is not authenticated");
+    }
+
+    await api.generatePlan(neonUser.id);
+  };
+
+  const getPlan = async () => {
+    if (!neonUser) {
+      throw new Error("Cannot fetch plan: user is not authenticated");
+    }
+
+    const result = await api.getPlan(neonUser.id);
+    return result?.plan ?? null;
+  };
+
   return (
-    <AuthContext.Provider value={{ user: neonUser, isLoading, saveProfile }}>
+    <AuthContext.Provider
+      value={{ user: neonUser, isLoading, saveProfile, generatePlan, getPlan }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -1,73 +1,56 @@
-# React + TypeScript + Vite
+# BehAI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AI aplikácia na tvorbu personalizovaných tréningových plánov. Používateľ prejde onboardingom (cieľ, skúsenosti, frekvencia tréningov, prípadné zranenia), na základe čoho AI vygeneruje tréningový plán.
 
-Currently, two official plugins are available:
+## Tech stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Frontend**: React + TypeScript, Vite, Tailwind CSS, shadcn/ui
+- **Backend**: Node.js, Express, TypeScript, Prisma (PostgreSQL)
+- **AI**: OpenAI SDK (cez OpenRouter)
+- **Auth**: Neon Auth
 
-## React Compiler
+## Spustenie
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Frontend
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Vytvor `.env` v roote projektu:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+VITE_API_URL=...
+VITE_NEON_AUTH_URL=...
+```
+
+### Backend
+
+```bash
+cd server
+npm install
+npm run dev:server
+```
+
+Vytvor `server/.env`:
+
+```
+PORT=...
+BASE_URL=...
+DATABASE_URL=...
+OPEN_ROUTER_KEY=...
+```
+
+Pred prvým spustením je potrebné vygenerovať Prisma klienta a aplikovať migrácie:
+
+```bash
+npx prisma generate
+npx prisma migrate deploy
+```
+
+## AI modely (OpenRouter)
+
+Použité modely sú natvrdo nastavené v [server/lib/ai.ts](server/lib/ai.ts) (funkcia `generateTrainingPlan`, `model` + `models` fallback zoznam).
+
+Momentálne sa používajú free modely z OpenRouteru. OpenRouter free modely pomerne často mení, ruší alebo dočasne preťažuje/vyraďuje z voľnej ponuky, takže ak generovanie plánu hádže 404/503 chybu, je potrebné v `server/lib/ai.ts` vymeniť slugy modelov za aktuálne dostupné free modely — aktuálny zoznam je na [openrouter.ai/models](https://openrouter.ai/models) (filter `Free`).
