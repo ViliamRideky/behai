@@ -1,5 +1,8 @@
 # BehAI
 
+![BehAI](public/images/behai.png)
+![BehAI](public/images/behai2.png)
+
 AI aplikácia na tvorbu personalizovaných tréningových plánov. Používateľ prejde onboardingom (cieľ, skúsenosti, frekvencia tréningov, prípadné zranenia), na základe čoho AI vygeneruje tréningový plán.
 
 ## Tech stack
